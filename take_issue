@@ -1,0 +1,99 @@
+#!/bin/bash
+
+#
+# This script is responsible to simplify workflow with feature branches
+# It creates a branch for an issue in the format [owner]/[issueId]
+# and pushes it to remote repo.
+# How does it work:
+# 1. If there is a local or remote branch with the same issue id
+#    it suggests to switch to one of the branches or create a new solution
+# 2. If the issue is a part of epic, then it will create a branch
+#    for epic (if it doesn't exist) and start an issue's branch from epic's branch
+#
+# Useage:
+#    take_issue [issueId]
+#
+# Installation:
+# Put this file to some place then and chmod +x /path/to/script
+# If yoo want to have a git alias for it, you can run the following command:
+# set +H && git config --global alias.take-issue "!f(){ ~/path/to/script $1; }; f" && set -H
+#
+
+set -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+source $DIR/common
+
+
+sayHello
+saySmth 'Let me check the state of your work first.'
+check_unsaved_changes
+saySmth 'OK. Everything is fine.'
+
+issueId=${1^^}
+baseBranch=${2-master}
+
+logOperation 'Loading information...'
+git fetch
+
+existsInRemote=$(git branch -r | grep -i $issueId | sed 's/[*[:space:]]*//g')
+existsInLocal=$(git branch | grep -i $issueId | sed 's/[*[:space:]]*//g')
+
+SOLUTION_BRANCHES=()
+
+while IFS= read -r line; do
+    [[ ! -z "$line" ]] && SOLUTION_BRANCHES+=( "${line//origin\//}" )
+done <<< "$existsInRemote"
+
+while IFS= read -r line; do
+    if [[ ! "${SOLUTION_BRANCHES[@]}" =~ "${line}" ]]; then
+        [[ ! -z "$line" ]] && SOLUTION_BRANCHES+=( "${line}" )
+    fi
+done <<< "$existsInLocal"
+
+decision="n"
+if [[ ${#SOLUTION_BRANCHES[@]} > 0 ]]; then
+    saySmth 'You or someone else has already started it.'
+    askSmth 'Would you like to checkout a solution? (Y/n)' decision
+fi
+
+if [[ ${decision,,} != "n" ]]; then
+    if [[ ${#SOLUTION_BRANCHES[@]} -le 1 ]]; then
+        git fetch
+        git checkout ${SOLUTION_BRANCHES[$decision]}
+        git pull
+    else
+        for i in "${!SOLUTION_BRANCHES[@]}"; do
+            echo "[$i] ${SOLUTION_BRANCHES[$i]}"
+        done
+        askSmth ' Which solution would you like to checkout? [0]' decision
+
+        if [[ ${#SOLUTION_BRANCHES[@]} -le ${decision} ]]; then
+            saySmth 'There is no such solution. Take a break and try again later.'
+        else
+            git fetch
+            git checkout ${SOLUTION_BRANCHES[$decision]}
+            git pull
+        fi
+    fi
+else
+    saySmth 'OK. It looks like, noone is on this issue.'
+
+    solutionBranch=$USER/$issueId-${#SOLUTION_BRANCHES[@]}
+
+    logOperation "Switching to the $baseBranch branch..."
+    git checkout $baseBranch > /dev/null 2>&1
+
+    logOperation "Checking state of the $baseBranch branch..."
+    check_branch_state "Master"
+
+    logOperation "Updating the $baseBranch branch..."
+    git pull > /dev/null 2>&1
+
+    logOperation 'Creating new branch...'
+    git checkout -b $solutionBranch > /dev/null 2>&1
+    logOperation 'Pushing new branch to remote'
+    git push --set-upstream origin $solutionBranch > /dev/null 2>&1
+fi
+
+sayAllSet

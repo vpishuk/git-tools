@@ -1,0 +1,106 @@
+#!/bin/bash
+
+function askSmth() {
+    local -n ref=$2
+    read -p "R2D2: $1" ref
+}
+export -f askSmth
+
+function saySmth() {
+    echo "R2D2: $1"
+}
+export -f saySmth
+
+function sayHello() {
+    saySmth 'Hi there!'
+}
+export -f sayHello
+
+function sayAllSet() {
+    saySmth 'You are all set! Have a nice day!'
+}
+export -f sayAllSet
+
+function logOperation() {
+    echo "* $1"
+}
+export -f logOperation
+
+function check_unsaved_changes() {
+    unstaged_changes="Changes not staged for commit:"
+    uncommited_changes="Changes to be committed:"
+
+    git_status="$(git status 2> /dev/null)"
+
+    proceed='y'
+    if [[ ${git_status} =~ ${unstaged_changes} ]]; then
+        saySmth "You have unstaged changes. Please, stash or commit them before proceeding."
+        echo
+        echo "${git_status}"
+        echo
+        askSmth 'Do you want to proceed? [y/N]' proceed
+    fi
+
+    if [[ ${git_status} =~ ${uncommited_changes} ]]; then
+        saySmth "You have uncommited changes. Please, stash or commit them before proceeding."
+        echo
+        echo "${git_status}"
+        echo
+        askSmth 'Do you want to proceed? [y/N]' proceed
+    fi
+
+    if [[ ${proceed,,} != "y" ]]; then
+        exit
+    fi
+}
+export -f check_unsaved_changes
+
+function check_branch_state() {
+    unstaged_changes="Changes not staged for commit:"
+    uncommited_changes="Changes to be committed:"
+    diverge_pattern="Your branch and (.*) have diverged"
+    ahead_pattern="Your branch is ahead of (.*) by (.*) commit"
+
+    git_branch=$(git branch 2>/dev/null| sed -n '/^\*/s/^\* //p')
+    git_status="$(git status 2> /dev/null)"
+
+    if [[ ${git_status} =~ ${unstaged_changes} ]]; then
+        saySmth "Branch ${git_branch} is out of sync with remote."
+        echo
+        echo "${git_status}"
+        exit
+    fi
+
+    if [[ ${git_status} =~ ${uncommited_changes} ]]; then
+        saySmth "Branch ${git_branch} is out of sync with remote."
+        echo
+        echo "${git_status}"
+        exit
+    fi
+
+    if [[ ${git_status} =~ ${diverge_pattern} ]]; then
+        saySmth "Branch ${git_branch} is out of sync with remote."
+        echo
+        echo "${git_status}"
+        exit
+    fi
+
+    if [[ ${git_status} =~ ${ahead_pattern} ]]; then
+        saySmth "Branch ${git_branch} is out of sync with remote."
+        echo
+        echo "${git_status}"
+        exit
+    fi
+}
+export -f check_branch_state
+
+function is_on_valid_branch() {
+    git_branch=$(git branch 2>/dev/null| sed -n '/^\*/s/^\* //p')
+    valid_pattern="$USER/(.*)"
+    if [[ ${git_branch} =~ ${valid_pattern} ]]; then
+        return 0
+    fi
+    saySmth "I can't create PR from master branch..."
+    exit
+}
+export -f is_on_valid_branch

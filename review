@@ -1,0 +1,52 @@
+#!/bin/bash
+
+#
+# This script is responsible to simplify review request workflow
+# It creates a PR by using data from git.
+#
+# Useage:
+#    review
+#
+# Installation:
+# Put this file to some place then and chmod +x /path/to/script
+# If yoo want to have a git alias for it, you can run the following command:
+# set +H && git config --global alias.review "!f(){ ~/path/to/script/review $1; }; f" && set -H
+#
+
+set -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+source $DIR/common
+
+NEWLINE=$'\n'
+BASE_BRANCH=${1-master}
+
+sayHello
+
+saySmth 'Let me check the state of your work first.'
+
+is_on_valid_branch
+logOperation 'Branch is valid.'
+check_unsaved_changes
+logOperation 'No unsaved changesleft.'
+
+saySmth 'OK. Everything is fine. We can proceed.'
+
+saySmth 'I am pushing changes to remote branch.'
+git push origin
+
+git_branch="$(git branch | sed -n '/^\*/s/^\* //p')"
+issueId="$(echo "$git_branch" | sed "s/$USER\///g" | sed 's/-[0-9]*$//g')"
+reviewsInProgres="$(gh pr list)"
+
+if [[ ! "${reviewsInProgres}" == *"${git_branch}"* ]]; then
+    logOperation 'No reviews found.'
+    logOperation 'Gathering changes.'
+    askSmth "Title? " title
+    git_log=$(git log ${git_branch} --not ${BASE_BRANCH} --pretty="tformat:* %s%n%b")
+
+    trap 'rm /tmp/git-review$$' exit; echo "## Ticket: ${NEWLINE}https://neurala.atlassian.net/browse/$issueId ${NEWLINE}${NEWLINE}## Changelog: ${NEWLINE}${git_log}${NEWLINE}${NEWLINE}## How To Test:${NEWLINE}${NEWLINE}## Notes:" >> /tmp/git-review$$; vim /tmp/git-review$$ >/dev/tty; content=$(cat /tmp/git-review$$)
+    echo "$content"
+    gh pr create --title "$issueId: $title" --base ${BASE_BRANCH} --body "$content"
+fi
+sayAllSet
