@@ -3,7 +3,7 @@
 This repo includes a few pretty useful command-line utilities.
 1. `git review [branch]` - Creates a PR in github
 2. `git prune-all [branch]` - Removes all branches which were removed in remote repo
-3. `git take-issue [issueId]` - Creates a feature branch, or checkout existing branch
+3. `git take-issue [issueId]` - Creates a feature branch, or checkout existing branch. Note please, this command does nothing with issues in github or any other tool.
 
 To install all of this scripts, simply run `./install` script.
 
