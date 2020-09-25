@@ -100,7 +100,32 @@ function is_on_valid_branch() {
     if [[ ${git_branch} =~ ${valid_pattern} ]]; then
         return 0
     fi
-    saySmth "I can't create PR from master branch..."
-    exit
+    # saySmth "I can't create PR from master branch..."
+    # exit
 }
 export -f is_on_valid_branch
+
+gitRootDir=$(git rev-parse --show-toplevel)
+
+if [ -f $HOME/.git-tools ]; then
+    . $HOME/.git-tools
+fi
+
+if [ -f $gitRootDir/.git-tools ]; then
+    . $gitRootDir/.git-tools
+fi
+
+GIT_TOOLS_REVIEW_TEMPLATE_FILE=${GIT_TOOLS_REVIEW_TEMPLATE_FILE:-"$gitRootDir/docs/pull_request_template.md"}
+
+if [ -f $GIT_TOOLS_REVIEW_TEMPLATE_FILE ]; then
+    DEFAULT_REVIEW_TEMPLATE=$(cat $GIT_TOOLS_REVIEW_TEMPLATE_FILE)
+else
+    DEFAULT_REVIEW_TEMPLATE=""
+fi
+
+
+export GIT_TOOLS_BRANCH_NAME_TEMPLATE=${GIT_TOOLS_BRANCH_NAME_TEMPLATE:-"${USER}/[issueId]"}
+export GIT_TOOLS_REVIEW_TEMPLATE=${GIT_TOOLS_REVIEW_TEMPLATE:-"$DEFAULT_REVIEW_TEMPLATE"}
+export GIT_TOOLS_REVIEW_TEMPLATE_ISSUE_ID=${GIT_TOOLS_REVIEW_TEMPLATE_ISSUE_ID:-"[add JIRA ticket name here]"}
+export GIT_TOOLS_REVIEW_TEMPLATE_GIT_LOG=${GIT_TOOLS_REVIEW_TEMPLATE_GIT_LOG:-"[What changed? Why did you change it? Why did you choose your solution over other ones (if applicable)?]"}
+export GIT_TOOLS_VERSION_CONTROL=${GIT_TOOLS_VERSION_CONTROL:-"GITHUB"}

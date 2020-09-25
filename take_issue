@@ -33,6 +33,11 @@ saySmth 'OK. Everything is fine.'
 issueId=${1^^}
 baseBranch=${2-master}
 
+if [[ -z "${issueId// }" ]]; then
+    saySmth 'Issue ID is a required argument.'
+    exit 1;
+fi
+
 logOperation 'Loading information...'
 git fetch
 
@@ -79,7 +84,7 @@ if [[ ${decision,,} != "n" ]]; then
 else
     saySmth 'OK. It looks like, noone is on this issue.'
 
-    solutionBranch=$USER/$issueId-${#SOLUTION_BRANCHES[@]}
+    solutionBranch=$(echo ${GIT_TOOLS_BRANCH_NAME_TEMPLATE/\[issueId\]/$issueId}-${#SOLUTION_BRANCHES[@]})
 
     logOperation "Switching to the $baseBranch branch..."
     git checkout $baseBranch > /dev/null 2>&1

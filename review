@@ -5,7 +5,7 @@
 # It creates a PR by using data from git.
 #
 # Useage:
-#    review
+#    review [issueId] [baseBranch]
 #
 # Installation:
 # Put this file to some place then and chmod +x /path/to/script
@@ -16,10 +16,17 @@
 set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 source $DIR/common
 
 NEWLINE=$'\n'
-BASE_BRANCH=${1-master}
+BASE_BRANCH=${2-master}
+issueId=${1^^}
+
+if [[ -z "${issueId// }" ]]; then
+    saySmth 'Issue ID is a required argument.'
+    exit 1;
+fi
 
 sayHello
 
@@ -36,17 +43,54 @@ saySmth 'I am pushing changes to remote branch.'
 git push origin
 
 git_branch="$(git branch | sed -n '/^\*/s/^\* //p')"
-issueId="$(echo "$git_branch" | sed "s/$USER\///g" | sed 's/-[0-9]*$//g')"
-reviewsInProgres="$(gh pr list)"
+git_log=$(git log ${git_branch} --not ${BASE_BRANCH} --pretty="tformat:* %s%n%b")
 
-if [[ ! "${reviewsInProgres}" == *"${git_branch}"* ]]; then
-    logOperation 'No reviews found.'
-    logOperation 'Gathering changes.'
-    askSmth "Title? " title
-    git_log=$(git log ${git_branch} --not ${BASE_BRANCH} --pretty="tformat:* %s%n%b")
+askSmth "Title? " title
 
-    trap 'rm /tmp/git-review$$' exit; echo "## Ticket: ${NEWLINE}https://neurala.atlassian.net/browse/$issueId ${NEWLINE}${NEWLINE}## Changelog: ${NEWLINE}${git_log}${NEWLINE}${NEWLINE}## How To Test:${NEWLINE}${NEWLINE}## Notes:" >> /tmp/git-review$$; vim /tmp/git-review$$ >/dev/tty; content=$(cat /tmp/git-review$$)
-    echo "$content"
-    gh pr create --title "$issueId: $title" --base ${BASE_BRANCH} --body "$content"
+logOperation 'Gathering changes.'
+
+template="${GIT_TOOLS_REVIEW_TEMPLATE/"$GIT_TOOLS_REVIEW_TEMPLATE_ISSUE_ID"/$issueId}"
+template="${template/"$GIT_TOOLS_REVIEW_TEMPLATE_GIT_LOG"/$git_log}"
+
+trap 'rm /tmp/git-review$$' exit; echo "$template" >> /tmp/git-review$$; vim /tmp/git-review$$ >/dev/tty; content=$(cat /tmp/git-review$$)
+echo "$content"
+exit;
+
+if [[ "${GIT_TOOLS_VERSION_CONTROL^^}" == "GITHUB" ]]; then
+    logOperation 'Looking for existing pull requests in GitHub...'
+    reviewsInProgres="$(gh pr list)"
+
+    if [[ ! "${reviewsInProgres}" == *"${git_branch}"* ]]; then
+        logOperation 'No reviews found.'
+        gh pr create --title "$issueId: $title" --base ${BASE_BRANCH} --body "$content"
+    fi
+
+    sayAllSet
+    exit
 fi
-sayAllSet
+
+if [[ "${GIT_TOOLS_VERSION_CONTROL^^}" == "BITBUCKET" ]]; then
+    logOperation 'You are using bitbucket...'
+
+    if [[ -z "${BITBUCKET_USERNAME// }" ]]; then
+        saySmth 'It looks like you did not set BitBucket username. It is required to work with BitBucket API.'
+        exit 1;
+    fi
+
+    if [[ -z "${BITBUCKET_REPOSITORY_NAME// }" ]]; then
+        saySmth 'It looks like you did not set BitBucket repository name. It is required to work with BitBucket API.'
+        exit 1;
+    fi
+
+    curl https://api.bitbucket.org/2.0/repositories/${BITBUCKET_USERNAME}/${BITBUCKET_REPOSITORY_NAME}/pullrequests \
+        -u my-username:my-password \
+        --request POST \
+        --header 'Content-Type: application/json' \
+        --data "{\"title\": \"${title}\",\"description\":\"${content}\"\"source\": {\"branch\": {\"name\": \"${git_branch}\"}},\"destination\": {\"branch\": {\"name\": \"${BASE_BRANCH}\"}}}"
+
+    sayAllSet
+    exit
+fi
+
+saySmth 'It looks like you are using not supported Version Control. Only BITBUCKET and GITHUB are supported.'
+exit
