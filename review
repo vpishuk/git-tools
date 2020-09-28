@@ -54,7 +54,6 @@ template="${template/"$GIT_TOOLS_REVIEW_TEMPLATE_GIT_LOG"/$git_log}"
 
 trap 'rm /tmp/git-review$$' exit; echo "$template" >> /tmp/git-review$$; vim /tmp/git-review$$ >/dev/tty; content=$(cat /tmp/git-review$$)
 echo "$content"
-exit;
 
 if [[ "${GIT_TOOLS_VERSION_CONTROL^^}" == "GITHUB" ]]; then
     logOperation 'Looking for existing pull requests in GitHub...'
