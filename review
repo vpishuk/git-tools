@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # This script is responsible to simplify review request workflow
@@ -21,7 +21,7 @@ source $DIR/common
 
 NEWLINE=$'\n'
 BASE_BRANCH=${2-master}
-issueId=${1^^}
+issueId=${1:u}
 
 if [[ -z "${issueId// }" ]]; then
     saySmth 'Issue ID is a required argument.'
@@ -55,7 +55,7 @@ template="${template/"$GIT_TOOLS_REVIEW_TEMPLATE_GIT_LOG"/$git_log}"
 trap 'rm /tmp/git-review$$' exit; echo "$template" >> /tmp/git-review$$; vim /tmp/git-review$$ >/dev/tty; content=$(cat /tmp/git-review$$)
 echo "$content"
 
-if [[ "${GIT_TOOLS_VERSION_CONTROL^^}" == "GITHUB" ]]; then
+if [[ "${GIT_TOOLS_VERSION_CONTROL:u}" == "GITHUB" ]]; then
     logOperation 'Looking for existing pull requests in GitHub...'
     reviewsInProgres="$(gh pr list)"
 
@@ -68,7 +68,7 @@ if [[ "${GIT_TOOLS_VERSION_CONTROL^^}" == "GITHUB" ]]; then
     exit
 fi
 
-if [[ "${GIT_TOOLS_VERSION_CONTROL^^}" == "BITBUCKET" ]]; then
+if [[ "${GIT_TOOLS_VERSION_CONTROL:u}" == "BITBUCKET" ]]; then
     logOperation 'You are using bitbucket...'
 
     if [[ -z "${BITBUCKET_USERNAME// }" ]]; then

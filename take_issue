@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # This script is responsible to simplify workflow with feature branches
@@ -30,7 +30,7 @@ saySmth 'Let me check the state of your work first.'
 check_unsaved_changes
 saySmth 'OK. Everything is fine.'
 
-issueId=${1^^}
+issueId=${1:u}
 baseBranch=${2-master}
 
 if [[ -z "${issueId// }" ]]; then
@@ -62,7 +62,7 @@ if [[ ${#SOLUTION_BRANCHES[@]} > 0 ]]; then
     askSmth 'Would you like to checkout a solution? (Y/n)' decision
 fi
 
-if [[ ${decision,,} != "n" ]]; then
+if [[ ${decision:l} != "n" ]]; then
     if [[ ${#SOLUTION_BRANCHES[@]} -le 1 ]]; then
         git fetch
         git checkout ${SOLUTION_BRANCHES[$decision]}

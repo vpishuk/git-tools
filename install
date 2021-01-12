@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # This script is responsible to register commands you need
@@ -25,7 +25,7 @@ saySmth "Secondly, git review [branchName]. The command will help to create a PR
 saySmth "And finally, git prune-all. The command will help to remove branches which do not exist in remote repository."
 askSmth "Should I proceed? (Y/n)" decision
 
-if [[ ${decision,,} != "n" ]]; then
+if [[ ${decision:l} != "n" ]]; then
     set +H
     logOperation 'Adding alias git take-issue...'
     git config --global alias.take-issue "!f(){ $DIR/take_issue \$1; }; f"
