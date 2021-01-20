@@ -1,8 +1,7 @@
 #!/bin/sh
 
 function askSmth() {
-    local ref=$2
-    read -p "R2D2: $1" ref
+    read -p "R2D2: $1" $2
 }
 export -f askSmth
 
