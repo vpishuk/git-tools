@@ -21,12 +21,6 @@ source $DIR/common
 
 NEWLINE=$'\n'
 BASE_BRANCH=${2-master}
-issueId=${1:u}
-
-if [[ -z "${issueId// }" ]]; then
-    saySmth 'Issue ID is a required argument.'
-    exit 1;
-fi
 
 sayHello
 
@@ -41,13 +35,18 @@ git push origin
 
 git_branch="$(git branch | sed -n '/^\*/s/^\* //p')"
 git_log=$(git log ${git_branch} --not ${BASE_BRANCH} --pretty="tformat:* %s%n%b")
+titles=$(git log -1 --pretty="%s")
 
-askSmth "Title? " title
+if [[ "${#distro[@]}" > 1 ]]; then
+    askSmth "Title? " title
+else
+    title="${titles[0]}"
+fi
 
 logOperation 'Gathering changes.'
 
-template="${GIT_TOOLS_REVIEW_TEMPLATE/"$GIT_TOOLS_REVIEW_TEMPLATE_ISSUE_ID"/$issueId}"
-template="${template/"$GIT_TOOLS_REVIEW_TEMPLATE_GIT_LOG"/$git_log}"
+template="${GIT_TOOLS_REVIEW_TEMPLATE/"$GIT_TOOLS_REVIEW_TEMPLATE_GIT_LOG"/$git_log}"
+template="${template/"$GIT_TOOLS_REVIEW_TEMPLATE_BRANCH"/$git_branch}"
 
 trap 'rm /tmp/git-review$$' exit; echo "$template" >> /tmp/git-review$$; vim /tmp/git-review$$ >/dev/tty; content=$(cat /tmp/git-review$$)
 echo "$content"
@@ -58,7 +57,7 @@ if [[ "${GIT_TOOLS_VERSION_CONTROL:u}" == "GITHUB" ]]; then
 
     if [[ ! "${reviewsInProgres}" == *"${git_branch}"* ]]; then
         logOperation 'No reviews found.'
-        gh pr create --title "$issueId: $title" --base ${BASE_BRANCH} --body "$content"
+        gh pr create --title "$title" --base ${BASE_BRANCH} --body "$content"
     fi
 
     sayAllSet
