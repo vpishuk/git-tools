@@ -86,9 +86,6 @@ else
 
     solutionBranch=$(echo ${GIT_TOOLS_BRANCH_NAME_TEMPLATE/\[issueId\]/$issueId}-${#SOLUTION_BRANCHES[@]})
 
-    logOperation "Stashing changes..."
-    git add -A
-    git stash
     logOperation "Switching to the $baseBranch branch..."
     git checkout $baseBranch > /dev/null 2>&1
 
@@ -102,9 +99,8 @@ else
     git checkout -b $solutionBranch > /dev/null 2>&1
     logOperation 'Pushing new branch to remote'
     git push --set-upstream origin $solutionBranch
-
-    logOperation "Applying stashed changes..."
-    git stash apply
 fi
+
+unstash
 
 sayAllSet

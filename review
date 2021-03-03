@@ -34,9 +34,6 @@ saySmth 'Let me check the state of your work first.'
 
 is_on_valid_branch
 logOperation 'Branch is valid.'
-check_unsaved_changes
-logOperation 'No unsaved changesleft.'
-
 saySmth 'OK. Everything is fine. We can proceed.'
 
 saySmth 'I am pushing changes to remote branch.'
