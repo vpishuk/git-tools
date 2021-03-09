@@ -130,9 +130,9 @@ function unstash() {
 
     if [[ ! -z "${stash_entry}" ]]; then
         proceed='y'
-        askSmth 'Do you want to apply changes I stashed before?' proceed
+        askSmth 'Do you want to apply changes I stashed before? [Y/n]' proceed
 
-        if [[ ${proceed:l} != "y" ]]; then
+        if [[ ${proceed:l} != "n" ]]; then
             git stash pop $stash_entry
         fi
     fi
