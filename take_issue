@@ -98,7 +98,7 @@ else
     logOperation 'Creating new branch...'
     git checkout -b $solutionBranch > /dev/null 2>&1
     logOperation 'Pushing new branch to remote'
-    git push --set-upstream origin $solutionBranch
+    git push --no-verify --set-upstream origin $solutionBranch
 fi
 
 unstash
