@@ -56,7 +56,7 @@ if [[ "${GIT_TOOLS_VERSION_CONTROL:u}" == "GITHUB" ]]; then
         logOperation 'No reviews found.'
 
         trap 'rm /tmp/git-review$$' exit; echo "$template" >> /tmp/git-review$$; vim /tmp/git-review$$ >/dev/tty; content=$(cat /tmp/git-review$$)
-        # gh pr create --title "$title" --base ${BASE_BRANCH} --body "$content"
+        gh pr create --title "$title" --base ${BASE_BRANCH} --body "$content"
         exit
     else
         logOperation "Found reviews:"
