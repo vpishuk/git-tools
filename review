@@ -48,21 +48,27 @@ logOperation 'Gathering changes.'
 template="${GIT_TOOLS_REVIEW_TEMPLATE/"$GIT_TOOLS_REVIEW_TEMPLATE_GIT_LOG"/$git_log}"
 template="${template/"$GIT_TOOLS_REVIEW_TEMPLATE_BRANCH"/$git_branch}"
 
-trap 'rm /tmp/git-review$$' exit; echo "$template" >> /tmp/git-review$$; vim /tmp/git-review$$ >/dev/tty; content=$(cat /tmp/git-review$$)
-echo "$content"
-
 if [[ "${GIT_TOOLS_VERSION_CONTROL:u}" == "GITHUB" ]]; then
-    logOperation 'Looking for existing pull requests in GitHub...'
-    reviewsInProgres="$(gh pr list)"
+    logOperation "Looking for existing pull requests in GitHub for head branch ${git_branch}..."
+    reviewsInProgres="$(gh pr list --head $git_branch)"
 
     if [[ ! "${reviewsInProgres}" == *"${git_branch}"* ]]; then
         logOperation 'No reviews found.'
-        gh pr create --title "$title" --base ${BASE_BRANCH} --body "$content"
+
+        trap 'rm /tmp/git-review$$' exit; echo "$template" >> /tmp/git-review$$; vim /tmp/git-review$$ >/dev/tty; content=$(cat /tmp/git-review$$)
+        # gh pr create --title "$title" --base ${BASE_BRANCH} --body "$content"
+        exit
+    else
+        logOperation "Found reviews:"
+        logOperation "$reviewsInProgres"
+        saySmth "There is an open PR that matches branch ${git_branch}."
     fi
 
     sayAllSet
     exit
 fi
+
+
 
 if [[ "${GIT_TOOLS_VERSION_CONTROL:u}" == "BITBUCKET" ]]; then
     logOperation 'You are using bitbucket...'

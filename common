@@ -117,7 +117,7 @@ if [ -f $gitRootDir/.git-tools ]; then
     . $gitRootDir/.git-tools
 fi
 
-GIT_TOOLS_REVIEW_TEMPLATE_FILE=${GIT_TOOLS_REVIEW_TEMPLATE_FILE:-"$gitRootDir/docs/pull_request_template.md"}
+GIT_TOOLS_REVIEW_TEMPLATE_FILE=${GIT_TOOLS_REVIEW_TEMPLATE_FILE:-"$gitRootDir/.github/pull_request_template.md"}
 
 if [ -f $GIT_TOOLS_REVIEW_TEMPLATE_FILE ]; then
     DEFAULT_REVIEW_TEMPLATE=$(cat $GIT_TOOLS_REVIEW_TEMPLATE_FILE)
