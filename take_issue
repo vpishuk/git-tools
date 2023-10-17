@@ -31,7 +31,8 @@ check_unsaved_changes
 saySmth 'OK. Everything is fine.'
 
 issueId=${1:u}
-baseBranch=${2-master}
+branchName=${2-unnamed}
+baseBranch=${3-master}
 
 if [[ -z "${issueId// }" ]]; then
     saySmth 'Issue ID is a required argument.'
@@ -84,7 +85,7 @@ if [[ ${decision:l} != "n" ]]; then
 else
     saySmth 'OK. It looks like, noone is on this issue.'
 
-    solutionBranch=$(echo ${GIT_TOOLS_BRANCH_NAME_TEMPLATE/\[issueId\]/$issueId}-${#SOLUTION_BRANCHES[@]})
+    solutionBranch=$(echo $issueId-$branchName-${#SOLUTION_BRANCHES[@]})
 
     logOperation "Switching to the $baseBranch branch..."
     git checkout $baseBranch > /dev/null 2>&1
@@ -96,7 +97,8 @@ else
     git pull > /dev/null 2>&1
 
     logOperation 'Creating new branch...'
-    git checkout -b $solutionBranch > /dev/null 2>&1
+    gh issue develop $issueId -n $solutionBranch -c > /dev/null 2>&1
+
     logOperation 'Pushing new branch to remote'
     git push --no-verify --set-upstream origin $solutionBranch
 fi

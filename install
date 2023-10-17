@@ -28,13 +28,13 @@ askSmth "Should I proceed? (Y/n)" decision
 if [[ ${decision:l} != "n" ]]; then
     set +H
     logOperation 'Adding alias git take-issue...'
-    git config --global alias.take-issue "!f(){ $DIR/take_issue \$1; }; f"
+    git config --global alias.take-issue "!f(){ $DIR/take_issue \$@; }; f"
 
     logOperation 'Adding alias git review...'
-    git config --global alias.review "!f(){ $DIR/review \$1; }; f"
+    git config --global alias.review "!f(){ $DIR/review \$@; }; f"
 
     logOperation 'Adding alias git prune-all...'
-    git config --global alias.prune-all "!f(){ $DIR/prune \$1; }; f"
+    git config --global alias.prune-all "!f(){ $DIR/prune \$@; }; f"
 fi
 
 sayAllSet
