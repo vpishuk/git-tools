@@ -97,7 +97,11 @@ else
     git pull > /dev/null 2>&1
 
     logOperation 'Creating new branch...'
-    gh issue develop $issueId -n $solutionBranch -c > /dev/null 2>&1
+    if [[ ${R2D2_ISSUE_TRACKER:l} == 'gh'  ]]; then
+        gh issue develop $issueId -n $solutionBranch -c > /dev/null 2>&1
+    else
+        git checkout -b $solutionBranch > /dev/null 2>&1
+    fi
 
     logOperation 'Pushing new branch to remote'
     git push --no-verify --set-upstream origin $solutionBranch

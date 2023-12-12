@@ -117,10 +117,10 @@ if [ -f $gitRootDir/.git-tools ]; then
     . $gitRootDir/.git-tools
 fi
 
-GIT_TOOLS_REVIEW_TEMPLATE_FILE=${GIT_TOOLS_REVIEW_TEMPLATE_FILE:-"$gitRootDir/.github/pull_request_template.md"}
+R2D2_REVIEW_TEMPLATE_FILE=${R2D2_REVIEW_TEMPLATE_FILE:-"$gitRootDir/.github/pull_request_template.md"}
 
-if [ -f $GIT_TOOLS_REVIEW_TEMPLATE_FILE ]; then
-    DEFAULT_REVIEW_TEMPLATE=$(cat $GIT_TOOLS_REVIEW_TEMPLATE_FILE)
+if [ -f $R2D2_REVIEW_TEMPLATE_FILE ]; then
+    DEFAULT_REVIEW_TEMPLATE=$(cat $R2D2_REVIEW_TEMPLATE_FILE)
 else
     DEFAULT_REVIEW_TEMPLATE=""
 fi
@@ -139,9 +139,10 @@ function unstash() {
 }
 export -f unstash
 
-export GIT_TOOLS_BRANCH_NAME_TEMPLATE=${GIT_TOOLS_BRANCH_NAME_TEMPLATE:-"[issueId]"}
-export GIT_TOOLS_REVIEW_TEMPLATE=${GIT_TOOLS_REVIEW_TEMPLATE:-"$DEFAULT_REVIEW_TEMPLATE"}
-export GIT_TOOLS_REVIEW_TEMPLATE_ISSUE_ID=${GIT_TOOLS_REVIEW_TEMPLATE_ISSUE_ID:-"[add JIRA ticket name here]"}
-export GIT_TOOLS_REVIEW_TEMPLATE_GIT_LOG=${GIT_TOOLS_REVIEW_TEMPLATE_GIT_LOG:-"[What changed? Why did you change it? Why did you choose your solution over other ones (if applicable)?]"}
-export GIT_TOOLS_VERSION_CONTROL=${GIT_TOOLS_VERSION_CONTROL:-"GITHUB"}
-export GIT_TOOLS_REVIEW_TEMPLATE_BRANCH=${GIT_TOOLS_REVIEW_TEMPLATE_BRANCH:-"[Git branch]"}
+export R2D2_BRANCH_NAME_TEMPLATE=${R2D2_BRANCH_NAME_TEMPLATE:-"[issueId]"}
+export R2D2_REVIEW_TEMPLATE=${R2D2_REVIEW_TEMPLATE:-"$DEFAULT_REVIEW_TEMPLATE"}
+export R2D2_ISSUE_TRACKER=${R2D2_ISSUE_TRACKER:-"github"}
+export R2D2_REVIEW_TEMPLATE_ISSUE_ID=${R2D2_REVIEW_TEMPLATE_ISSUE_ID:-"[add JIRA ticket name here]"}
+export R2D2_REVIEW_TEMPLATE_GIT_LOG=${R2D2_REVIEW_TEMPLATE_GIT_LOG:-"[What changed? Why did you change it? Why did you choose your solution over other ones (if applicable)?]"}
+export R2D2_VERSION_CONTROL=${R2D2_VERSION_CONTROL:-"github"}
+export R2D2_REVIEW_TEMPLATE_BRANCH=${R2D2_REVIEW_TEMPLATE_BRANCH:-"[Git branch]"}

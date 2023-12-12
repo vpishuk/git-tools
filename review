@@ -45,10 +45,10 @@ fi
 
 logOperation 'Gathering changes.'
 
-template="${GIT_TOOLS_REVIEW_TEMPLATE/"$GIT_TOOLS_REVIEW_TEMPLATE_GIT_LOG"/$git_log}"
-template="${template/"$GIT_TOOLS_REVIEW_TEMPLATE_BRANCH"/$git_branch}"
+template="${R2D2_REVIEW_TEMPLATE/"$R2D2_REVIEW_TEMPLATE_GIT_LOG"/$git_log}"
+template="${template/"$R2D2_REVIEW_TEMPLATE_BRANCH"/$git_branch}"
 
-if [[ "${GIT_TOOLS_VERSION_CONTROL:u}" == "GITHUB" ]]; then
+if [[ "${R2D2_VERSION_CONTROL:u}" == "github" ]]; then
     logOperation "Looking for existing pull requests in GitHub for head branch ${git_branch}..."
     reviewsInProgres="$(gh pr list --head $git_branch)"
 
@@ -68,30 +68,5 @@ if [[ "${GIT_TOOLS_VERSION_CONTROL:u}" == "GITHUB" ]]; then
     exit
 fi
 
-
-
-if [[ "${GIT_TOOLS_VERSION_CONTROL:u}" == "BITBUCKET" ]]; then
-    logOperation 'You are using bitbucket...'
-
-    if [[ -z "${BITBUCKET_USERNAME// }" ]]; then
-        saySmth 'It looks like you did not set BitBucket username. It is required to work with BitBucket API.'
-        exit 1;
-    fi
-
-    if [[ -z "${BITBUCKET_REPOSITORY_NAME// }" ]]; then
-        saySmth 'It looks like you did not set BitBucket repository name. It is required to work with BitBucket API.'
-        exit 1;
-    fi
-
-    curl https://api.bitbucket.org/2.0/repositories/${BITBUCKET_USERNAME}/${BITBUCKET_REPOSITORY_NAME}/pullrequests \
-        -u my-username:my-password \
-        --request POST \
-        --header 'Content-Type: application/json' \
-        --data "{\"title\": \"${title}\",\"description\":\"${content}\"\"source\": {\"branch\": {\"name\": \"${git_branch}\"}},\"destination\": {\"branch\": {\"name\": \"${BASE_BRANCH}\"}}}"
-
-    sayAllSet
-    exit
-fi
-
-saySmth 'It looks like you are using not supported Version Control. Only BITBUCKET and GITHUB are supported.'
+saySmth 'It looks like you are using not supported Version Control. Only github is supported.'
 exit

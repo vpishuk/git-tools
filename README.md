@@ -12,18 +12,17 @@ You can configure git tools according to your needs. There are a few options ava
 To change configuration you must create `.git-tools` file like this one:
 
 ```
-GIT_TOOLS_BRANCH_NAME_TEMPLATE=feature/[issueId]
+R2D2_BRANCH_NAME_TEMPLATE=feature/[issueId]
 ```
 
 Available configuration properties:
-1. `GIT_TOOLS_BRANCH_NAME_TEMPLATE` defines a template for branch names. Default value is `$USER/[issueId]`. `[issueId]` is replaced by passed argument.
-2. `GIT_TOOLS_REVIEW_TEMPLATE` defines a template for pull requests. If it exits then `GIT_TOOLS_REVIEW_TEMPLATE_FILE` is ignored.
-3. `GIT_TOOLS_REVIEW_TEMPLATE_FILE` defines a file containing a template for PRs.
-4. `GIT_TOOLS_REVIEW_TEMPLATE_ISSUE_ID` defines a string from template which will be replaced by issue id.
-5. `GIT_TOOLS_REVIEW_TEMPLATE_GIT_LOG` defines a string from template which will be replaced bu git log.
-6. `GIT_TOOLS_VERSION_CONTROL` defines a VC service used. Default value is `GITHUB`. The tool supports only GitHub and BitBucket.
-7. `BITBUCKET_USERNAME` username for BitBucket. Has to be defined if you use BitBucket.
-8. `BITBUCKET_REPOSITORY_NAME` repository name in BitBucket. Has to be defined if you use BitBucket.
+1. `R2D2_BRANCH_NAME_TEMPLATE` defines a template for branch names. Default value is `$USER/[issueId]`. `[issueId]` is replaced by passed argument.
+2. `R2D2_REVIEW_TEMPLATE` defines a template for pull requests. If it exits then `R2D2_REVIEW_TEMPLATE_FILE` is ignored.
+3. `R2D2_REVIEW_TEMPLATE_FILE` defines a file containing a template for PRs.
+4. `R2D2_REVIEW_TEMPLATE_ISSUE_ID` defines a string from template which will be replaced by issue id.
+5. `R2D2_REVIEW_TEMPLATE_GIT_LOG` defines a string from template which will be replaced bu git log.
+6. `R2D2_VERSION_CONTROL` defines a VC service used. Default value is `github`. The tool supports only GitHub.
+7. `R2D2_ISSUE_TRACKER` issue tracker. Default value is `github`. The tool supports only github for now.
 
 
 ## git take-issue
