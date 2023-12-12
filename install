@@ -23,6 +23,7 @@ saySmth "I'm going to add some usefull commands for you."
 saySmth "First of all, git take-issue [ISSUE_ID]. The command will help to create a branch or download existing solution."
 saySmth "Secondly, git review [branchName]. The command will help to create a PR in github."
 saySmth "And finally, git prune-all. The command will help to remove branches which do not exist in remote repository."
+saySmth "Additionally I'm going to set push.autoSetupRemote git config to true, so you don't need to set upstream for every new branch."
 askSmth "Should I proceed? (Y/n)" decision
 
 if [[ ${decision:l} != "n" ]]; then
@@ -35,6 +36,8 @@ if [[ ${decision:l} != "n" ]]; then
 
     logOperation 'Adding alias git prune-all...'
     git config --global alias.prune-all "!f(){ $DIR/prune \$@; }; f"
+
+    git config --global --add --bool push.autoSetupRemote true
 fi
 
 sayAllSet
