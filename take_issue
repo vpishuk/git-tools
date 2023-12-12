@@ -97,7 +97,7 @@ else
     git pull > /dev/null 2>&1
 
     logOperation 'Creating new branch...'
-    if [[ ${R2D2_ISSUE_TRACKER:l} == 'gh'  ]]; then
+    if [[ ${R2D2_ISSUE_TRACKER:l} == 'github'  ]]; then
         gh issue develop $issueId -n $solutionBranch -c > /dev/null 2>&1
     else
         git checkout -b $solutionBranch > /dev/null 2>&1
