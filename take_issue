@@ -32,7 +32,7 @@ saySmth 'OK. Everything is fine.'
 
 issueId=${1:u}
 branchName=${2-unnamed}
-baseBranch=${3-master}
+baseBranch=${3-"$R2D2_BASE_BRANCH"}
 
 if [[ -z "${issueId// }" ]]; then
     saySmth 'Issue ID is a required argument.'
@@ -91,7 +91,7 @@ else
     git checkout $baseBranch > /dev/null 2>&1
 
     logOperation "Checking state of the $baseBranch branch..."
-    check_branch_state "Master"
+    check_branch_state "$R2D2_BASE_BRANCH"
 
     logOperation "Updating the $baseBranch branch..."
     git pull > /dev/null 2>&1
